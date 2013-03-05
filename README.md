@@ -1,6 +1,8 @@
 # clj-duedil
 
-A Clojure library for accessing the duedil.com API
+[![Build Status](https://secure.travis-ci.org/trampoline/clj-duedil.png)](http://travis-ci.org/trampoline/clj-duedil)
+
+A Clojure client for the duedil.com API
 
 ## Usage
 
