@@ -1,6 +1,7 @@
 (ns clj-duedil.util-test
   (:use midje.sweet
-        clj-duedil.util))
+        clj-duedil.util)
+  (:require [clojure.string :as str]))
 
 
 (fact
@@ -31,4 +32,9 @@
   (check-opts [[:foo 100]] {:foo 10}) => {:foo 10}
   (check-opts [[:foo 100] :bar] {:bar 20}) => {:foo 100 :bar 20}
   (check-opts [[:foo 100] :bar :baz] {:bar 20}) => {:foo 100 :bar 20}
-  (check-opts [:foo] {:foo 10 :bar 20}) => (throws RuntimeException #"unknown option keys: \[:bar\]"))
+  (check-opts [:foo] {:foo 10 :bar 20}) => (throws RuntimeException #"unknown option keys: \[:bar\]")
+  (check-opts [[:foo str/upper-case]] {:foo "bar"}) => {:foo "BAR"})
+
+(fact
+  (encode-traversals {:get :directorships}) => "%7B%22get%22%3A%22directorships%22%7D"
+  (encode-traversals [{:get :directorships} {:get "directors"}]) => "%5B%7B%22get%22%3A%22directorships%22%7D%2C%7B%22get%22%3A%22directors%22%7D%5D")

@@ -3,6 +3,7 @@
     [org.clojure/tools.logging "0.2.6"]
     [org.clojure/tools.macro "0.1.2"]
     [org.clojure/core.incubator "0.1.2"]
+    [org.clojure/data.json "0.2.1"]
     [clj-http "0.6.4"]
     ])
 

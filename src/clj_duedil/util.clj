@@ -1,9 +1,21 @@
 (ns clj-duedil.util
   (:use
-   clojure.core.strint)
+   clojure.core.strint
+   clojure.core.incubator)
   (:require
    [clojure.string :as str]
-   [clojure.set :as set]))
+   [clojure.data.json :as json]
+   [clojure.set :as set])
+  (:import
+   [java.net URLEncoder URLDecoder]))
+
+(defn url-encode
+  [s]
+  (URLEncoder/encode s))
+
+(defn url-decode
+  [s]
+  (URLDecoder/decode s))
 
 (defn strip-last-slash
   [s]
@@ -63,12 +75,25 @@
                              {}
                              valid-opt-keys)
         defaults (->> opt-defaults
-                      (filter (fn [[k v]] v))
+                      (filter (fn [[k v]] (and v (not (fn? v)))))
                       (into {}))
-        valid-keys (keys opt-defaults)
+        processors (->> opt-defaults
+                        (filter (fn [[k v]] (fn? v)))
+                        (into {}))
         invalid-keys (vec (set/difference (-> opts keys set) (-> opt-defaults keys set)))]
 
     (if (not-empty invalid-keys)
       (throw (RuntimeException. (<< "unknown option keys: ~{invalid-keys}"))))
 
-    (merge defaults opts)))
+    (reduce (fn [opts [k processor]]
+              (assoc opts k (processor (opts k))))
+            (merge defaults opts)
+            processors)))
+
+(defn encode-traversals
+  "json encode, then URL encode the traversals vector/maps"
+  [traversals]
+  (-?> traversals
+       not-empty
+       json/write-str
+       url-encode))
