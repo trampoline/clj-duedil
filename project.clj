@@ -1,6 +1,9 @@
 (def shared
   '[
     [org.clojure/tools.logging "0.2.6"]
+    [org.clojure/tools.macro "0.1.2"]
+    [org.clojure/core.incubator "0.1.2"]
+    [clj-http "0.6.4"]
     ])
 
 (defproject clj-duedil "0.1.0-SNAPSHOT"
