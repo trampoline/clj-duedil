@@ -83,7 +83,8 @@
     (reduce (fn [opts [k processor]]
               (let [processed (processor (opts k))]
                 (if processed
-                  (assoc opts k processed))))
+                  (assoc opts k processed)
+                  opts)))
             (merge defaults opts)
             processors)))
 
@@ -99,4 +100,4 @@
   "encode a url from base, resource, api-key and options"
   [api-base api-key resource opts]
   (str (apply join-url-components api-base (flatten [resource]))
-       (flatten-params (merge opts {:api-key api-key}))))
+       (flatten-params (merge opts {:api_key api-key}))))

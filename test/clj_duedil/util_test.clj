@@ -41,4 +41,4 @@
 
 (fact
   (api-url "http://api.duedil.com/open" "blahblah" "company/1234" {:foo 10 :bar "boo"}) =>
-  "http://api.duedil.com/open/company/1234?api-key=blahblah&foo=10&bar=boo")
+  "http://api.duedil.com/open/company/1234?api_key=blahblah&foo=10&bar=boo")

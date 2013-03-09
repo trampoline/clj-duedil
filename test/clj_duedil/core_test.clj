@@ -19,13 +19,13 @@
 (let [c (->client "http://api.duedil.com/foo" "blahblah")]
   (fact
     (url-only
-     (foos c 1000) => "http://api.duedil.com/foo/company/1000.json?api-key=blahblah&fields=get_all"
-     (foos c 1010 :fields "foo,bar") => "http://api.duedil.com/foo/company/1010.json?api-key=blahblah&fields=foo,bar")))
+     (foos c 1000) => "http://api.duedil.com/foo/company/1000.json?api_key=blahblah&fields=get_all"
+     (foos c 1010 :fields "foo,bar") => "http://api.duedil.com/foo/company/1010.json?api_key=blahblah&fields=foo,bar")))
 
 (let [c (->client "http://api.duedil.com/foo" "blahblah")]
   (fact
     (foos c 1000) => {:response "boo"}
 
     (provided
-      (http/get "http://api.duedil.com/foo/company/1000.json?api-key=blahblah&fields=get_all") =>
+      (http/get "http://api.duedil.com/foo/company/1000.json?api_key=blahblah&fields=get_all") =>
       {:body (json/write-str {:response "boo"})})))
