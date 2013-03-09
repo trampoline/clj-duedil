@@ -7,7 +7,7 @@
     [clj-http "0.6.4"]
     ])
 
-(defproject clj-duedil "0.1.0-SNAPSHOT"
+(defproject clj-duedil "0.1.0"
   :description "clj-duedil : a clojure library for the duedil api"
 
   :url "http://github.com/trampoline/clj-duedil"
