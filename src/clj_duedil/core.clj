@@ -52,9 +52,12 @@
     (let [param-keywords (map keyword (->> [param-or-params] flatten (filter identity)))
           param-symbols (->> param-keywords (map name) (map symbol))
           param-map (->> (map vector param-keywords param-symbols)
-                         (into {}))]
-      `(defn ~dname
-         [client# ~@param-symbols & {:as opts#}]
-         (call client#
-               (util/expand-resource-pattern ~resource-pattern ~param-map)
-               (util/check-opts ~opt-defs opts#))))))
+                         (into {}))
+          opt-keys (->> (util/opt-keys opt-defs) (map name) (map symbol))
+          arglists `(quote ([~'client ~@param-symbols & {:keys [~@opt-keys]}]))
+          dname-arglists (with-meta dname (merge (meta dname) {:arglists arglists}))]
+      `(def ~dname-arglists
+         (fn [client# ~@param-symbols & {:as opts#}]
+           (call client#
+                 (util/expand-resource-pattern ~resource-pattern ~param-map)
+                 (util/check-opts ~opt-defs opts#)))))))

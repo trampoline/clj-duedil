@@ -58,6 +58,16 @@
             pattern
             param-keys)))
 
+(defn opt-keys
+  "return a list of valid option keys
+   - opt-defs: a seq of options defs, each of which may be just the key, or a pair of [key default-value|processor-fn"
+  [opt-defs]
+  (->> opt-defs
+       (map (fn [opt-defproc]
+              (let [[opt defproc] (flatten [opt-defproc])]
+                opt)))
+       vec))
+
 (defn check-opts
   "check options and apply default values
    - opt-defs: a seq of option keys. each key may be just the key, or a pair of [key default-value|processor-fn]

@@ -26,6 +26,11 @@
   (expand-resource-pattern "/foo/:company_id/:person_id.json" {:company_id 100 :person_id 22}) => "/foo/100/22.json"
   (expand-resource-pattern "/foo/:bar.json" {:bar 10 :company_id 20}) => (throws RuntimeException #"must contain key: :company_id"))
 
+(fact
+  (opt-keys [:foo]) => [:foo]
+  (opt-keys [:foo [:bar 10]]) => [:foo :bar]
+  (opt-keys [:foo [:bar (fn [v] v)] [:baz 10]]) => [:foo :bar :baz])
+
 
 (fact
   (check-opts [:foo] {:foo "boo"}) => {:foo "boo"}
