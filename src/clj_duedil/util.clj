@@ -41,7 +41,7 @@
   "convert a map into a params-string"
   [m]
   (->> m
-       (map (fn [[k v]] (<< "~(-> k name underscore)=~(str v)")))
+       (map (fn [[k v]] (<< "~(name k)=~(str v)")))
        (str/join "&")
        (str "?")
        (#(if (> (count %) 1) % ""))))
@@ -59,7 +59,7 @@
                   (str/replace-first resource
                                      param-key-patt
                                      (str (params param-key)))
-                  (throw (RuntimeException. (<< "pattern: ~{pattern} does not contain key: ~{param-key}"))))))
+                  (throw (RuntimeException. (<< "pattern: ~{pattern} must contain key: ~{param-key} exactly once"))))))
             pattern
             param-keys)))
 
@@ -86,7 +86,10 @@
       (throw (RuntimeException. (<< "unknown option keys: ~{invalid-keys}"))))
 
     (reduce (fn [opts [k processor]]
-              (assoc opts k (processor (opts k))))
+              (let [processed (processor (opts k))]
+                (if processed
+                  (assoc opts k processed)))
+              )
             (merge defaults opts)
             processors)))
 
@@ -97,3 +100,8 @@
        not-empty
        json/write-str
        url-encode))
+
+(defn api-url
+  [api-base api-key resource opts]
+  (str (apply join-url-components api-base (flatten [resource]))
+       (flatten-params (merge opts {:api-key api-key}))))

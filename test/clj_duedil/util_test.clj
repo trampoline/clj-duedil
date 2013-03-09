@@ -19,12 +19,12 @@
   (flatten-params {}) => ""
   (flatten-params {:foo "bar"}) => "?foo=bar"
   (flatten-params {:foo "bar" :baz "barbar"}) => "?foo=bar&baz=barbar"
-  (flatten-params {:company-id 100}) => "?company_id=100")
+  (flatten-params {:company_id 100}) => "?company_id=100")
 
 (fact
   (expand-resource-pattern "/foo/:bar.json" {:bar 10}) => "/foo/10.json"
-  (expand-resource-pattern "/foo/:company-id/:person-id.json" {:company-id 100 :person-id 22}) => "/foo/100/22.json"
-  (expand-resource-pattern "/foo/:bar.json" {:bar 10 :company-id 20}) => (throws RuntimeException #"does not contain key: :company-id"))
+  (expand-resource-pattern "/foo/:company_id/:person_id.json" {:company_id 100 :person_id 22}) => "/foo/100/22.json"
+  (expand-resource-pattern "/foo/:bar.json" {:bar 10 :company_id 20}) => (throws RuntimeException #"must contain key: :company_id"))
 
 
 (fact
@@ -38,3 +38,7 @@
 (fact
   (encode-traversals {:get :directorships}) => "%7B%22get%22%3A%22directorships%22%7D"
   (encode-traversals [{:get :directorships} {:get "directors"}]) => "%5B%7B%22get%22%3A%22directorships%22%7D%2C%7B%22get%22%3A%22directors%22%7D%5D")
+
+(fact
+  (api-url "http://api.duedil.com/open" "blahblah" "company/1234" {:foo 10 :bar "boo"}) =>
+  "http://api.duedil.com/open/company/1234?api-key=blahblah&foo=10&bar=boo")
