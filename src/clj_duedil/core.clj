@@ -24,7 +24,7 @@
   "duedil API methods"
   (call [this resource opts]))
 
-(defrecord client [api-base api-key]
+(defrecord client-context [api-base api-key]
 
   ApiContext
   (call [this resource opts]
@@ -35,6 +35,10 @@
              :body
              (json/read-str :key-fn keyword))
         url))))
+
+(defn make-client-context
+  [api-base api-key]
+  (->client-context api-base api-key))
 
 (defmacro def-api-fn
   "def a function which will call an API method
