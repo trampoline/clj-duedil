@@ -16,12 +16,12 @@
     (f)))
 
 (defmacro url-only
-  [& body]
-  `(url-only* (fn [] ~@body)))
+  "API calls in the body will only return the URL which would be called"
+  [& forms]
+  `(url-only* (fn [] ~@forms)))
 
 (defprotocol ApiContext
   "duedil API methods"
-
   (call [this resource opts]))
 
 (defrecord client [api-base api-key]
@@ -33,13 +33,17 @@
         (-?> url
              http/get
              :body
-             (json/read-json :key-fn keyword))
+             (json/read-str :key-fn keyword))
         url))))
 
-(defmacro def-api-method
+(defmacro def-api-fn
+  "def a function which will call an API method
+   - name : the function name
+   - param-or-params : the parameters to be substituted into the resource url
+   - resource-pattern : the resource url patten. keys will be substituted with values from the function arglist
+   - opt-defs : vector of option defs. each may be a key or a [key default-value|processor-fn] pair"
   [fname & macro-args]
-  (let [[dname [param-or-params resource-pattern valid-opt-keys]] (macro/name-with-attributes fname macro-args)
-        [dname-url [_ _ _]] (macro/name-with-attributes (symbol (<< "~{fname}-url")) macro-args)]
+  (let [[dname [param-or-params resource-pattern opt-defs]] (macro/name-with-attributes fname macro-args)]
 
     (let [param-keywords (map keyword (->> [param-or-params] flatten (filter identity)))
           param-symbols (->> param-keywords (map name) (map symbol))
@@ -49,4 +53,4 @@
          [client# ~@param-symbols & {:as opts#}]
          (call client#
                (util/expand-resource-pattern ~resource-pattern ~param-map)
-               (util/check-opts ~valid-opt-keys opts#))))))
+               (util/check-opts ~opt-defs opts#))))))

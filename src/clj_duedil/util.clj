@@ -32,11 +32,6 @@
             (str (strip-last-slash base) "/" (strip-first-slash component)))
           components))
 
-(defn underscore
-  "replace - with _ to convert clojure keywords to http param names"
-  [s]
-  (str/replace s #"-" "_"))
-
 (defn flatten-params
   "convert a map into a params-string"
   [m]
@@ -65,15 +60,15 @@
 
 (defn check-opts
   "check options and apply default values
-   - valid-opt-keys: a seq of option keys. each key may be just they key, or a pair of [key default-value]
-   - opts: the options map to check. keys must be present in valid-opt-keys. default values, where they exist, will be added for missing keys"
+   - opt-defs: a seq of option keys. each key may be just the key, or a pair of [key default-value|processor-fn]
+   - opts: the options map to check. keys must be present in opt-defs. default values, where they exist, will be added for missing keys. processor-fns, where they exist, will be called with option values"
 
-  [valid-opt-keys opts]
+  [opt-defs opts]
   (let [opt-defaults (reduce (fn [od opt-default]
                                (let [[opt default] (flatten [opt-default])]
                                  (assoc od opt default)))
                              {}
-                             valid-opt-keys)
+                             opt-defs)
         defaults (->> opt-defaults
                       (filter (fn [[k v]] (and v (not (fn? v)))))
                       (into {}))
@@ -88,8 +83,7 @@
     (reduce (fn [opts [k processor]]
               (let [processed (processor (opts k))]
                 (if processed
-                  (assoc opts k processed)))
-              )
+                  (assoc opts k processed))))
             (merge defaults opts)
             processors)))
 
@@ -102,6 +96,7 @@
        url-encode))
 
 (defn api-url
+  "encode a url from base, resource, api-key and options"
   [api-base api-key resource opts]
   (str (apply join-url-components api-base (flatten [resource]))
        (flatten-params (merge opts {:api-key api-key}))))
