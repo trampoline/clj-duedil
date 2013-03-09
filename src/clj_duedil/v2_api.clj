@@ -34,10 +34,10 @@
   :company_id "company/:company_id/documents.json" [[:fields "get_all"] [:traversal encode-traversals]])
 
 (def-api-fn get-director
-  :director-id "director/:director-id.json" [[:fields "get_all"] [:traversal encode-traversals]])
+  :director_id "director/:director_id.json" [[:fields "get_all"] [:traversal encode-traversals]])
 
 (def-api-fn list-director-directorships
-  :director-id "director/:director-id/directorships.json" [[:fields "get_all"] [:traversal encode-traversals]])
+  :director_id "director/:director_id/directorships.json" [[:fields "get_all"] [:traversal encode-traversals]])
 
 (def-api-fn list-credit-ratings
   :company_id "credit/company/:company_id/ratings.json" [[:fields "get_all"] [:traversal encode-traversals]])
