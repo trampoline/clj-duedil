@@ -33,6 +33,28 @@ A Clojure client for the duedil.com API
 
     ;; "http://api.duedil.com/v2/company/03977902.json?api_key=your-api-key&traversal=%7B%22get%22%3A%22directorships%22%7D&fields=status,accountsType"
 
+### Available API functions
+
+    clj-duedil.v2-api/get-company
+    clj-duedil.v2-api/get-registered-address
+    clj-duedil.v2-api/list-previous-company-names
+    clj-duedil.v2-api/list-secondary-industries
+    clj-duedil.v2-api/list-company-shareholdings
+    clj-duedil.v2-api/list-company-bank-accounts
+    clj-duedil.v2-api/list-company-accounts
+    clj-duedil.v2-api/get-full-itemised-accounts
+    clj-duedil.v2-api/list-company-documents
+    clj-duedil.v2-api/get-director
+    clj-duedil.v2-api/list-director-directorships
+    clj-duedil.v2-api/list-credit-ratings
+    clj-duedil.v2-api/list-credit-limits
+    clj-duedil.v2-api/search-companies
+    clj-duedil.v2-api/search-directors
+
+    clj-duedil.open-api/company-search
+    clj-duedil.open-api/united-kingdom-company-information
+    clj-duedil.open-api/roi-company-information
+
 ## License
 
 Copyright © 2013 Trampoline Systems Ltd
