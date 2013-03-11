@@ -26,7 +26,7 @@
   :dependencies ~(conj shared '[org.clojure/clojure "1.5.0"])
   :dev-dependencies []
 
-  :profiles {:all {:dependenciess ~shared}
+  :profiles {:all {:dependencies ~shared}
              :dev {:dependencies [[midje "1.5-RC1"]]}
              :production {}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
