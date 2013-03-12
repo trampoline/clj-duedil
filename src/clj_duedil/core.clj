@@ -40,6 +40,18 @@
   [api-base api-key]
   (->client-context api-base api-key))
 
+(def ^:dynamic *default-client-context* nil)
+
+(defn with-client-context*
+  [cc f]
+  (with-bindings {#'*default-client-context* cc}
+    (f)))
+
+(defmacro with-client-context
+  [cc & forms]
+  `(with-client-context* ~cc (fn [] ~@forms)))
+
+
 (defmacro def-api-fn
   "def a function which will call an API method
    - name : the function name
@@ -54,10 +66,20 @@
           param-map (->> (map vector param-keywords param-symbols)
                          (into {}))
           opt-keys (->> (util/opt-keys opt-defs) (map name) (map symbol))
-          arglists `(quote ([~'client ~@param-symbols & {:keys [~@opt-keys]}]))
+          arglists `(quote ([~'client-context ~@param-symbols & {:keys [~@opt-keys]}]))
           dname-arglists (with-meta dname (merge (meta dname) {:arglists arglists}))]
       `(def ~dname-arglists
-         (fn [client# ~@param-symbols & {:as opts#}]
-           (call client#
-                 (util/expand-resource-pattern ~resource-pattern ~param-map)
-                 (util/check-opts ~opt-defs opts#)))))))
+         (fn [& args#]
+           (if (instance? clj_duedil.core.client-context (first args#))
+
+             (let [[client# ~@param-symbols & {:as opts#}] args#]
+               (call client#
+                     (util/expand-resource-pattern ~resource-pattern ~param-map)
+                     (util/check-opts ~opt-defs opts#)))
+
+             (let [[~@param-symbols & {:as opts#}] args#]
+               (if (nil? *default-client-context*)
+                 (throw (RuntimeException. "must set *default-client-context* if not explicitly passing a client-context")))
+               (call *default-client-context*
+                     (util/expand-resource-pattern ~resource-pattern ~param-map)
+                     (util/check-opts ~opt-defs opts#)))))))))

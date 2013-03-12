@@ -33,6 +33,11 @@ A Clojure client for the duedil.com API
 
     ;; "http://api.duedil.com/v2/company/03977902.json?api_key=your-api-key&traversal=%7B%22get%22%3A%22directorships%22%7D&fields=status,accountsType"
 
+    ;; use with-client-context to avoid passing the client-context to api function
+    (dd/with-client-context c
+      (ddv2/get-company "03977902")
+      (ddv2/get-registered-address "03977902"))
+
 ### Available API functions
 
     clj-duedil.v2-api/get-company
