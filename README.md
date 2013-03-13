@@ -15,6 +15,16 @@ A Clojure client for the duedil.com API
 
 ## Usage
 
+Include the following dependency in your project.clj
+
+    ["clj-duedil" "0.3.0"]
+
+Then run
+
+    lein deps
+
+Which will download the specified version of `clj-duedil` from [Clojars](https://clojars.org/clj-duedil). Then :
+
     (require '[clj-duedil.core :as dd])
     (require '[clj-duedil.v2-api :as ddv2])
 
