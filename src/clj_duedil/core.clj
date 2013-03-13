@@ -31,3 +31,12 @@
      (->> (f)
           (iterate (fn [r] (next-page client-context r)))
           (take-while identity))))
+
+(defn collect-pages
+  "given a sequence of API result pages, collect the results from each page into one list"
+  [page-seq & [max-pages]]
+  (let [pages (if max-pages (take max-pages page-seq) page-seq)]
+    (->> pages
+         (map :response)
+         (map :data)
+         (apply concat))))

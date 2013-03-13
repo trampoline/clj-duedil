@@ -58,3 +58,14 @@
     )
 
   )
+
+(fact
+  (collect-pages [{:response {:data [1 2 3]}}
+                  {:response {:data [4 5 6]}}
+                  {:response {:data [7 8 9]}}]) => '(1 2 3 4 5 6 7 8 9)
+
+  (collect-pages [{:response {:data [1 2 3]}}
+                  {:response {:data [4 5 6]}}
+                  {:response {:data [7 8 9]}}]
+                 2) => '(1 2 3 4 5 6)
+  )
