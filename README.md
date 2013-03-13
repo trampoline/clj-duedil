@@ -18,25 +18,32 @@ A Clojure client for the duedil.com API
     (require '[clj-duedil.core :as dd])
     (require '[clj-duedil.v2-api :as ddv2])
 
-    (def c (dd/make-client-context ddv2/v2-api-base "your-api-key"))
+    (def cc (dd/make-client-context ddv2/v2-api-base "your-api-key"))
 
     ;; get company details
-    (ddv2/get-company c "03977902")
+    (ddv2/get-company cc "03977902")
 
     ;; return the url which would be called
-    (dd/url-only (ddv2/get-company c "03977902"))
+    (dd/url-only (ddv2/get-company cc "03977902"))
 
     ;; "http://api.duedil.com/v2/company/03977902.json?api_key=your-api-key&fields=get_all"
 
     ;; specify some fields and a traversal
-    (dd/url-only (ddv2/get-company c "03977902" :fields "status,accountsType" :traversal {:get "directorships"}))
+    (dd/url-only (ddv2/get-company cc "03977902" :fields "status,accountsType" :traversal {:get "directorships"}))
 
     ;; "http://api.duedil.com/v2/company/03977902.json?api_key=your-api-key&traversal=%7B%22get%22%3A%22directorships%22%7D&fields=status,accountsType"
 
     ;; use with-client-context to avoid passing the client-context to api function
-    (dd/with-client-context c
+    (dd/with-client-context cc
       (ddv2/get-company "03977902")
       (ddv2/get-registered-address "03977902"))
+
+    ;; methods which paginate results return a lazy-sequence of result-pages.
+    ;; page-size can be specified with :limit
+    (ddv2/list-company-accounts cc "03977902" :limit 10)
+
+    ;; collect-pages collects results from all pages into a single list
+    (dd/collect-pages (ddv2/list-company-accounts cc "03977902"))
 
 ### Available API functions
 
