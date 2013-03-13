@@ -42,17 +42,3 @@
 (fact
 
   (foos 1000) => (throws RuntimeException #"must set \*default-client-context\*"))
-
-(fact
-  (collect-pages [{:data [1 2 3]}
-                  {:data [4 5 6]}
-                  {:data [7 8 9]}]) => '(1 2 3 4 5 6 7 8 9)
-
-   (collect-pages [{:data [1 2 3]}
-                  {:data [4 5 6]}
-                  {:data [7 8 9]}]
-                  2) => '(1 2 3 4 5 6)
-
-   (collect-pages 1) => 1
-
-  )

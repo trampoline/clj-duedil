@@ -48,12 +48,10 @@ Which will download the specified version of `clj-duedil` from [Clojars](https:/
       (ddv2/get-company "03977902")
       (ddv2/get-registered-address "03977902"))
 
-    ;; methods which paginate results return a lazy-sequence of result-pages.
+    ;; methods which paginate results return a lazy-sequence of result-pages. each page
+    ;; is a vector of results
     ;; page-size can be specified with :limit
     (ddv2/list-company-accounts cc "03977902" :limit 10)
-
-    ;; collect-pages collects results from all pages into a single list
-    (dd/collect-pages (ddv2/list-company-accounts cc "03977902"))
 
 ### Available API functions
 

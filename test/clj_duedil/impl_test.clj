@@ -35,17 +35,17 @@
     {:body (json/write-str {:response "boo"})}))
 
 (fact
-  (pages cc {:response {:pagination "http://api.duedil.com/foo?offset=5"}}) =>
-  '({:pagination "http://api.duedil.com/foo?offset=5"}
-    {:pagination "http://api.duedil.com/foo?offset=10"}
-    {:pagination "http://api.duedil.com/foo?last_result=1"})
+  (pages cc {:response {:pagination "http://api.duedil.com/foo?offset=5" :data [{:id 1} {:id 2}]}}) =>
+  '([{:id 1} {:id 2}]
+      [{:id 3} {:id 4}]
+        [{:id 5} {:id 6}])
 
   (provided
     (http/get "http://api.duedil.com/foo?offset=5&api_key=blahblah") =>
-    {:body (json/write-str {:response {:pagination "http://api.duedil.com/foo?offset=10"}})}
+    {:body (json/write-str {:response {:pagination "http://api.duedil.com/foo?offset=10" :data [{:id 3} {:id 4}]}})}
 
     (http/get "http://api.duedil.com/foo?offset=10&api_key=blahblah") =>
-    {:body (json/write-str {:response {:pagination "http://api.duedil.com/foo?last_result=1"}})}
+    {:body (json/write-str {:response {:pagination "http://api.duedil.com/foo?last_result=1" :data [{:id 5} {:id 6}]}})}
     ))
 
 (def-api-fn bars [:bar_id] "/bars/:bar_id.json" [[:fields "get_all"]] (fn [cc r] {:cc cc :bar r}))

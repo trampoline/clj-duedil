@@ -19,14 +19,3 @@
    - client-context : the default client-context"
   [client-context & forms]
   `(with-client-context* ~client-context (fn [] ~@forms)))
-
-(defn collect-pages
-  "given a sequence of API result pages, collect the results from each page into one list.
-   returns page-seq if page-seq is not sequential?"
-  [page-seq & [max-pages]]
-  (if (sequential? page-seq)
-    (let [pages (if max-pages (take max-pages page-seq) page-seq)]
-      (->> pages
-           (map :data)
-           (apply concat)))
-    page-seq))

@@ -110,12 +110,14 @@
      (->> result-page
           (iterate (fn [r] (next-page r)))
           (take-while identity)
-          (map :response)))
+          (map :response)
+          (map :data)))
   ([client-context result-page]
      (->> result-page
           (iterate (fn [r] (next-page client-context r)))
           (take-while identity)
-          (map :response))))
+          (map :response)
+          (map :data))))
 
 (defn unwrap-response
   "remove the response wrapper from a result"
