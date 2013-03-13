@@ -29,7 +29,7 @@
   :company_id "company/:company_id/accounts.json" [[:fields "get_all"] [:traversal encode-traversals] :offset :limit] pages)
 
 (def-api-fn get-full-itemised-accounts
-  [:company_id :accounts-id] "company/:company_id/accounts/:accounts-id.json" [[:fields "get_all"] [:traversal encode-traversals]])
+  [:company_id :accounts-id] "company/:company_id/accounts/:accounts-id.json" [[:fields "get_all"] [:traversal encode-traversals]] unwrap-response)
 
 (def-api-fn list-company-documents
   :company_id "company/:company_id/documents.json" [[:fields "get_all"] [:traversal encode-traversals] :offset :limit] pages)
