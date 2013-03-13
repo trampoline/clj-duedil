@@ -20,30 +20,52 @@
   [& forms]
   `(url-only* (fn [] ~@forms)))
 
-(defprotocol ApiContext
+(defprotocol ClientContext
   "duedil API methods"
-  (call [this resource opts]))
+  (call [this method opts]
+    "call an API method with options")
+  (call-next-page [this api-result]
+    "given a result of call or call-next-page, fetch the next page of results, or nil"))
+
+(def ^:dynamic *default-client-context* nil)
+
+(defn client-context-arglist
+  "split an arg-list with an optional client-context. returns
+   [client-context arglist]"
+  [args]
+  (if (instance? clj_duedil.core.ClientContext (first args))
+    [(first args) (rest args)]
+
+    (do
+      (if-not *default-client-context*
+        (throw (RuntimeException. "must set *default-client-context* if not explicitly passing a client-context")))
+
+      [*default-client-context* args])))
+
 
 (defrecord client-context [api-base api-key]
-
-  ApiContext
+  ClientContext
   (call [this resource opts]
     (let [url (util/api-url api-base api-key resource opts)]
       (if-not *url-only*
-        (-?> url
-             http/get
-             :body
-             (json/read-str :key-fn keyword))
-        url))))
+        (util/api-call url)
+        url)))
+
+  (call-next-page [this api-result]
+    (let [next-page-url (util/next-page-url api-key api-result)]
+      (if-not *url-only*
+        (util/api-call next-page-url)
+        next-page-url))))
 
 (defn make-client-context
   [api-base api-key]
   (->client-context api-base api-key))
 
-(def ^:dynamic *default-client-context* nil)
 
 (defn with-client-context*
   [cc f]
+  (if-not (instance? clj_duedil.core.ClientContext cc)
+    (throw (RuntimeException. "cc must be a client-context")))
   (with-bindings {#'*default-client-context* cc}
     (f)))
 
@@ -51,6 +73,47 @@
   [cc & forms]
   `(with-client-context* ~cc (fn [] ~@forms)))
 
+(defn next-page
+  ([client-context api-result]
+     (call-next-page client-context api-result))
+  ([api-result]
+     (if (nil? *default-client-context*)
+       (throw (RuntimeException. "must set *default-client-context* if not explicitly passing a client-context")))
+     (call-next-page *default-client-context* api-result)))
+
+(defn pages
+  "a lazy seq of pages : iterates with next-page
+   - f : a function to be called for the first page of results"
+  ([f]
+     (->> (f)
+          (iterate (fn [r] (next-page r)))
+          (take-while identity)))
+  ([client-context f]
+     (->> (f)
+          (iterate (fn [r] (next-page client-context r)))
+          (take-while identity))))
+
+
+
+(defn parse-api-fn-args
+  "parse the arg list of an api-fn call. returns
+   [client-context param-values opts-map]"
+  [param-count call-args]
+  (let [[client-context param-opts] (client-context-arglist call-args)]
+    [client-context
+     (take param-count param-opts)
+     (apply hash-map (drop param-count param-opts))]))
+
+(defn api-fn*
+  "implementation function for def-api-fn macro"
+  [params resource-pattern opt-defs call-args]
+  ;; (clojure.pprint/pprint (list 'api-fn* params resource-pattern opt-defs call-args))
+  (let [[client-context param-values opts] (parse-api-fn-args (count params) call-args)
+        param-map (->> (map vector params param-values) (into {}))]
+
+    (call client-context
+          (util/expand-resource-pattern resource-pattern param-map)
+          (util/check-opts opt-defs opts))))
 
 (defmacro def-api-fn
   "def a function which will call an API method
@@ -61,25 +124,11 @@
   [fname & macro-args]
   (let [[dname [param-or-params resource-pattern opt-defs]] (macro/name-with-attributes fname macro-args)]
 
-    (let [param-keywords (map keyword (->> [param-or-params] flatten (filter identity)))
-          param-symbols (->> param-keywords (map name) (map symbol))
-          param-map (->> (map vector param-keywords param-symbols)
-                         (into {}))
+    (let [param-keywords (->> [param-or-params] flatten (filter identity) (map keyword) vec)
+          param-symbols (->> param-keywords (map name) (map symbol) vec)
           opt-keys (->> (util/opt-keys opt-defs) (map name) (map symbol))
-          arglists `(quote ([~'client-context ~@param-symbols & {:keys [~@opt-keys]}]))
+          arglists `(quote ([~'client-context? ~@param-symbols & {:keys [~@opt-keys]}]))
           dname-arglists (with-meta dname (merge (meta dname) {:arglists arglists}))]
       `(def ~dname-arglists
          (fn [& args#]
-           (if (instance? clj_duedil.core.client-context (first args#))
-
-             (let [[client# ~@param-symbols & {:as opts#}] args#]
-               (call client#
-                     (util/expand-resource-pattern ~resource-pattern ~param-map)
-                     (util/check-opts ~opt-defs opts#)))
-
-             (let [[~@param-symbols & {:as opts#}] args#]
-               (if (nil? *default-client-context*)
-                 (throw (RuntimeException. "must set *default-client-context* if not explicitly passing a client-context")))
-               (call *default-client-context*
-                     (util/expand-resource-pattern ~resource-pattern ~param-map)
-                     (util/check-opts ~opt-defs opts#)))))))))
+           (api-fn* ~param-keywords ~resource-pattern ~opt-defs args#))))))

@@ -5,6 +5,7 @@
   (:require
    [clojure.string :as str]
    [clojure.data.json :as json]
+   [clj-http.client :as http]
    [clojure.set :as set])
   (:import
    [java.net URLEncoder URLDecoder]))
@@ -111,3 +112,16 @@
   [api-base api-key resource opts]
   (str (apply join-url-components api-base (flatten [resource]))
        (flatten-params (merge opts {:api_key api-key}))))
+
+(defn next-page-url
+  [api-key api-result]
+  (if-let [pagination-url (get-in api-result [:response :pagination])]
+    (if-not (re-find #"(?:\?|\&)last_result=1(?:\&|$)" pagination-url)
+      (str pagination-url "&api_key=" api-key))))
+
+(defn api-call
+  [url]
+  (-?> url
+       http/get
+       :body
+       (json/read-str :key-fn keyword)))

@@ -1,7 +1,9 @@
 (ns clj-duedil.util-test
   (:use midje.sweet
         clj-duedil.util)
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.data.json :as json]
+            [clj-http.client :as http]))
 
 
 (fact
@@ -47,3 +49,17 @@
 (fact
   (api-url "http://api.duedil.com/open" "blahblah" "company/1234" {:foo 10 :bar "boo"}) =>
   "http://api.duedil.com/open/company/1234?api_key=blahblah&foo=10&bar=boo")
+
+(fact
+  (next-page-url "blarghle" {:response {:pagination "http://api.duedil.com/blah?offset=50"}}) =>
+  "http://api.duedil.com/blah?offset=50&api_key=blarghle"
+
+  (next-page-url "blarghle" {:response {:pagination "http://api.duedil.com/blah?offset=50&last_result=1"}}) => nil
+  (next-page-url "blarghle" {:response {:pagination "http://api.duedil.com/blah?last_result=1&offset=50"}}) => nil
+  (next-page-url "blarghle" {:response {:pagination "http://api.duedil.com/blah?limit=10&last_result=1&offset=50"}}) => nil)
+
+(fact
+  (api-call "http://api.duedil.com/foo") => {:response {:data {:foo 100}}}
+
+  (provided
+    (http/get "http://api.duedil.com/foo") => {:body (json/write-str {:response {:data {:foo 100}}})}))
