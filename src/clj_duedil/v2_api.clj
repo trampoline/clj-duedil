@@ -8,7 +8,7 @@
 (def v2-api-base "http://api.duedil.com/v2")
 
 (def-api-fn get-company
-  :company_id "company/:company_id.json" [[:fields "get_all"] [:traversal encode-traversals]])
+  :company_id "company/:company_id.json" [[:fields "get_all"] [:traversal encode-traversals]] unwrap-response)
 
 (def-api-fn get-registered-address
   :company_id "company/:company_id/registered-address.json" [[:fields "get_all"] [:traversal encode-traversals] :offset :limit] pages)
@@ -35,7 +35,7 @@
   :company_id "company/:company_id/documents.json" [[:fields "get_all"] [:traversal encode-traversals] :offset :limit] pages)
 
 (def-api-fn get-director
-  :director_id "director/:director_id.json" [[:fields "get_all"] [:traversal encode-traversals]])
+  :director_id "director/:director_id.json" [[:fields "get_all"] [:traversal encode-traversals]] unwrap-response)
 
 (def-api-fn list-director-directorships
   :director_id "director/:director_id/directorships.json" [[:fields "get_all"] [:traversal encode-traversals] :offset :limit] pages)

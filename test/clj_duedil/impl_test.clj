@@ -34,12 +34,11 @@
     (http/get "http://api.duedil.com/foo/company/1000.json?api_key=blahblah&fields=get_all") =>
     {:body (json/write-str {:response "boo"})}))
 
-
 (fact
   (pages cc {:response {:pagination "http://api.duedil.com/foo?offset=5"}}) =>
-  '({:response {:pagination "http://api.duedil.com/foo?offset=5"}}
-    {:response {:pagination "http://api.duedil.com/foo?offset=10"}}
-    {:response {:pagination "http://api.duedil.com/foo?last_result=1"}})
+  '({:pagination "http://api.duedil.com/foo?offset=5"}
+    {:pagination "http://api.duedil.com/foo?offset=10"}
+    {:pagination "http://api.duedil.com/foo?last_result=1"})
 
   (provided
     (http/get "http://api.duedil.com/foo?offset=5&api_key=blahblah") =>
@@ -57,3 +56,6 @@
   (provided
     (http/get "http://api.duedil.com/foo/bars/1000.json?api_key=blahblah&fields=get_all") =>
     {:body (json/write-str {:response "booboo"})}))
+
+(fact
+  (unwrap-response cc {:response {:foo 10}}) => {:foo 10})

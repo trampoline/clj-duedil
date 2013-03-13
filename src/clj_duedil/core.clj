@@ -27,7 +27,6 @@
   (if (sequential? page-seq)
     (let [pages (if max-pages (take max-pages page-seq) page-seq)]
       (->> pages
-           (map :response)
            (map :data)
            (apply concat)))
     page-seq))
