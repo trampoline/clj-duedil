@@ -58,4 +58,7 @@
     {:body (json/write-str {:response "booboo"})}))
 
 (fact
-  (unwrap-response cc {:response {:foo 10}}) => {:foo 10})
+  (unwrap-response cc {:response {:foo 10}}) => {:foo 10}
+
+  (unwrap-response cc {:response {:foo 10} :traversals [:foo :bar :baz]}) => {:response {:foo 10} :traversals [:foo :bar :baz]}
+  )

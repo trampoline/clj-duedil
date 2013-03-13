@@ -1,4 +1,5 @@
 (ns clj-duedil.impl
+  (:use clj-duedil.protocols)
   (:require
    [clojure.tools.macro :as macro]
    [clj-duedil.util :as util]))
@@ -10,18 +11,11 @@
   (with-bindings {#'*url-only* true}
     (f)))
 
-(defprotocol ClientContext
-  "duedil API methods"
-  (call [this method opts]
-    "call an API method with options")
-  (call-next-page [this api-result]
-    "given a result of call or call-next-page, fetch the next page of results, or nil"))
-
 (def ^:dynamic *default-client-context* nil)
 
 (defn with-client-context*
   [cc f]
-  (if-not (instance? clj_duedil.impl.ClientContext cc)
+  (if-not (instance? clj_duedil.protocols.ClientContext cc)
     (throw (RuntimeException. "cc must be a client-context")))
   (with-bindings {#'*default-client-context* cc}
     (f)))
@@ -30,7 +24,7 @@
   "split an arg-list with an optional client-context. returns
    [client-context arglist]"
   [args]
-  (if (instance? clj_duedil.impl.ClientContext (first args))
+  (if (instance? clj_duedil.protocols.ClientContext (first args))
     [(first args) (rest args)]
 
     (do
@@ -103,6 +97,10 @@
          (fn [& args#]
            (api-fn* ~param-keywords ~resource-pattern ~opt-defs ~result-processor-fn args#))))))
 
+(defn unwrap-page
+  [page]
+  (get-in page [:response :data]))
+
 (defn pages
   "a lazy seq of pages : iterates with next-page
    - result-page : the first page of results"
@@ -110,17 +108,17 @@
      (->> result-page
           (iterate (fn [r] (next-page r)))
           (take-while identity)
-          (map :response)
-          (map :data)))
+          (map unwrap-page)))
   ([client-context result-page]
      (->> result-page
           (iterate (fn [r] (next-page client-context r)))
           (take-while identity)
-          (map :response)
-          (map :data))))
+          (map unwrap-page))))
 
 (defn unwrap-response
-  "remove the response wrapper from a result"
+  "remove the response wrapper from a result, unless there are traversals"
   [client-context result]
   (if result
-    (:response result)))
+    (if (:traversals result)
+      result
+      (:response result))))
