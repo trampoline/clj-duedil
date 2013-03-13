@@ -63,7 +63,8 @@
           (util/check-opts opt-defs opts))))
 
 (defmacro def-api-fn
-  "def a function which will call an API method
+  "def a function which will call an API method...
+   the defined function calls api-fn* with the def'd metadata and the call args
    - name : the function name
    - param-or-params : the parameters to be substituted into the resource url
    - resource-pattern : the resource url patten. keys will be substituted with values from the function arglist
