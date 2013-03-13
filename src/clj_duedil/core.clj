@@ -8,12 +8,17 @@
   `(url-only* (fn [] ~@forms)))
 
 (defn make-client-context
+  "make a client-context
+   - api-base : the base url for the version of the Duedil API
+   - api-key : the API key corresponding to the version of the API in api-base"
   [api-base api-key]
   (->client-context api-base api-key))
 
 (defmacro with-client-context
-  [cc & forms]
-  `(with-client-context* ~cc (fn [] ~@forms)))
+  "specify a default client-context for all API calls in the body
+   - client-context : the default client-context"
+  [client-context & forms]
+  `(with-client-context* ~client-context (fn [] ~@forms)))
 
 (defn pages
   "a lazy seq of pages : iterates with next-page

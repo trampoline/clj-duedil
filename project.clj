@@ -20,7 +20,10 @@
                  "clojars" {:url "https://clojars.org/repo/"}}
 
 
-  :plugins [[lein-midje "3.0-RC1"]]
+  :plugins [[lein-midje "3.0-RC1"]
+            [codox "0.6.4"]]
+
+  :codox {:include [clj-duedil.core clj-duedil.v2-api clj-duedil.open-api]}
 
   :aliases {"all" ["with-profile" "dev:1.4,dev:1.5"]}
   :dependencies ~(conj shared '[org.clojure/clojure "1.5.1"])
