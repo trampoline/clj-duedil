@@ -44,18 +44,6 @@
   (foos 1000) => (throws RuntimeException #"must set \*default-client-context\*"))
 
 (fact
-  (next-page c {:response {:pagination "http://api.duedil.com/foo?offset=10"}}) =>
-  {:response "boo"}
-
-  (provided
-    (http/get "http://api.duedil.com/foo?offset=10&api_key=blahblah") =>
-    {:body (json/write-str {:response "boo"})}))
-
-(fact
-  (next-page c {:response {:pagination "http://api.duedil.com/foo?offset=10&last_result=1"}}) =>
-  nil)
-
-(fact
   (pages c (fn [] {:response {:pagination "http://api.duedil.com/foo?offset=5"}})) =>
   '({:response {:pagination "http://api.duedil.com/foo?offset=5"}}
     {:response {:pagination "http://api.duedil.com/foo?offset=10"}}

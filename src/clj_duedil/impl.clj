@@ -5,6 +5,11 @@
 
 (def ^:dynamic *url-only* false)
 
+(defn url-only*
+  [f]
+  (with-bindings {#'*url-only* true}
+    (f)))
+
 (defprotocol ClientContext
   "duedil API methods"
   (call [this method opts]
@@ -13,6 +18,13 @@
     "given a result of call or call-next-page, fetch the next page of results, or nil"))
 
 (def ^:dynamic *default-client-context* nil)
+
+(defn with-client-context*
+  [cc f]
+  (if-not (instance? clj_duedil.impl.ClientContext cc)
+    (throw (RuntimeException. "cc must be a client-context")))
+  (with-bindings {#'*default-client-context* cc}
+    (f)))
 
 (defn client-context-arglist
   "split an arg-list with an optional client-context. returns
@@ -41,6 +53,14 @@
       (if-not *url-only*
         (util/api-call next-page-url)
         next-page-url))))
+
+(defn next-page
+  ([client-context api-result]
+     (call-next-page client-context api-result))
+  ([api-result]
+     (if (nil? *default-client-context*)
+       (throw (RuntimeException. "must set *default-client-context* if not explicitly passing a client-context")))
+     (call-next-page *default-client-context* api-result)))
 
 (defn parse-api-fn-args
   "parse the arg list of an api-fn call. returns
