@@ -33,3 +33,27 @@
   (provided
     (http/get "http://api.duedil.com/foo/company/1000.json?api_key=blahblah&fields=get_all") =>
     {:body (json/write-str {:response "boo"})}))
+
+
+(fact
+  (pages cc {:response {:pagination "http://api.duedil.com/foo?offset=5"}}) =>
+  '({:response {:pagination "http://api.duedil.com/foo?offset=5"}}
+    {:response {:pagination "http://api.duedil.com/foo?offset=10"}}
+    {:response {:pagination "http://api.duedil.com/foo?last_result=1"}})
+
+  (provided
+    (http/get "http://api.duedil.com/foo?offset=5&api_key=blahblah") =>
+    {:body (json/write-str {:response {:pagination "http://api.duedil.com/foo?offset=10"}})}
+
+    (http/get "http://api.duedil.com/foo?offset=10&api_key=blahblah") =>
+    {:body (json/write-str {:response {:pagination "http://api.duedil.com/foo?last_result=1"}})}
+    ))
+
+(def-api-fn bars [:bar_id] "/bars/:bar_id.json" [[:fields "get_all"]] (fn [cc r] {:cc cc :bar r}))
+
+(fact
+  (bars cc 1000) => {:cc cc :bar {:response "booboo"}}
+
+  (provided
+    (http/get "http://api.duedil.com/foo/bars/1000.json?api_key=blahblah&fields=get_all") =>
+    {:body (json/write-str {:response "booboo"})}))

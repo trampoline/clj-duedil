@@ -44,28 +44,15 @@
   (foos 1000) => (throws RuntimeException #"must set \*default-client-context\*"))
 
 (fact
-  (pages c (fn [] {:response {:pagination "http://api.duedil.com/foo?offset=5"}})) =>
-  '({:response {:pagination "http://api.duedil.com/foo?offset=5"}}
-    {:response {:pagination "http://api.duedil.com/foo?offset=10"}}
-    {:response {:pagination "http://api.duedil.com/foo?last_result=1"}})
-
-  (provided
-    (http/get "http://api.duedil.com/foo?offset=5&api_key=blahblah") =>
-    {:body (json/write-str {:response {:pagination "http://api.duedil.com/foo?offset=10"}})}
-
-    (http/get "http://api.duedil.com/foo?offset=10&api_key=blahblah") =>
-    {:body (json/write-str {:response {:pagination "http://api.duedil.com/foo?last_result=1"}})}
-    )
-
-  )
-
-(fact
   (collect-pages [{:response {:data [1 2 3]}}
                   {:response {:data [4 5 6]}}
                   {:response {:data [7 8 9]}}]) => '(1 2 3 4 5 6 7 8 9)
 
-  (collect-pages [{:response {:data [1 2 3]}}
-                  {:response {:data [4 5 6]}}
-                  {:response {:data [7 8 9]}}]
-                 2) => '(1 2 3 4 5 6)
+   (collect-pages [{:response {:data [1 2 3]}}
+                   {:response {:data [4 5 6]}}
+                   {:response {:data [7 8 9]}}]
+                  2) => '(1 2 3 4 5 6)
+
+   (collect-pages 1) => 1
+
   )

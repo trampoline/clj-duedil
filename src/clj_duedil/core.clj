@@ -20,23 +20,14 @@
   [client-context & forms]
   `(with-client-context* ~client-context (fn [] ~@forms)))
 
-(defn pages
-  "a lazy seq of pages : iterates with next-page
-   - f : a function to be called for the first page of results"
-  ([f]
-     (->> (f)
-          (iterate (fn [r] (next-page r)))
-          (take-while identity)))
-  ([client-context f]
-     (->> (f)
-          (iterate (fn [r] (next-page client-context r)))
-          (take-while identity))))
-
 (defn collect-pages
-  "given a sequence of API result pages, collect the results from each page into one list"
+  "given a sequence of API result pages, collect the results from each page into one list.
+   returns page-seq if page-seq is not sequential?"
   [page-seq & [max-pages]]
-  (let [pages (if max-pages (take max-pages page-seq) page-seq)]
-    (->> pages
-         (map :response)
-         (map :data)
-         (apply concat))))
+  (if (sequential? page-seq)
+    (let [pages (if max-pages (take max-pages page-seq) page-seq)]
+      (->> pages
+           (map :response)
+           (map :data)
+           (apply concat)))
+    page-seq))

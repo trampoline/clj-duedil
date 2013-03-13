@@ -73,14 +73,16 @@
 
 (defn api-fn*
   "implementation function for def-api-fn macro"
-  [params resource-pattern opt-defs call-args]
+  [params resource-pattern opt-defs result-processor-fn call-args]
   ;; (clojure.pprint/pprint (list 'api-fn* params resource-pattern opt-defs call-args))
   (let [[client-context param-values opts] (parse-api-fn-args (count params) call-args)
-        param-map (->> (map vector params param-values) (into {}))]
-
-    (call client-context
-          (util/expand-resource-pattern resource-pattern param-map)
-          (util/check-opts opt-defs opts))))
+        param-map (->> (map vector params param-values) (into {}))
+        api-result (call client-context
+                         (util/expand-resource-pattern resource-pattern param-map)
+                         (util/check-opts opt-defs opts))]
+    (if result-processor-fn
+      (result-processor-fn client-context api-result)
+      api-result)))
 
 (defmacro def-api-fn
   "def a function which will call an API method...
@@ -90,7 +92,7 @@
    - resource-pattern : the resource url patten. keys will be substituted with values from the function arglist
    - opt-defs : vector of option defs. each may be a key or a [key default-value|processor-fn] pair"
   [fname & macro-args]
-  (let [[dname [param-or-params resource-pattern opt-defs]] (macro/name-with-attributes fname macro-args)]
+  (let [[dname [param-or-params resource-pattern opt-defs & [result-processor-fn]]] (macro/name-with-attributes fname macro-args)]
 
     (let [param-keywords (->> [param-or-params] flatten (filter identity) (map keyword) vec)
           param-symbols (->> param-keywords (map name) (map symbol) vec)
@@ -99,4 +101,16 @@
           dname-arglists (with-meta dname (merge (meta dname) {:arglists arglists}))]
       `(def ~dname-arglists
          (fn [& args#]
-           (api-fn* ~param-keywords ~resource-pattern ~opt-defs args#))))))
+           (api-fn* ~param-keywords ~resource-pattern ~opt-defs ~result-processor-fn args#))))))
+
+(defn pages
+  "a lazy seq of pages : iterates with next-page
+   - result-page : the first page of results"
+  ([result-page]
+     (->> result-page
+          (iterate (fn [r] (next-page r)))
+          (take-while identity)))
+  ([client-context result-page]
+     (->> result-page
+          (iterate (fn [r] (next-page client-context r)))
+          (take-while identity))))
