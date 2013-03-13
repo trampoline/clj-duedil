@@ -23,12 +23,12 @@
   :plugins [[lein-midje "3.0-RC1"]]
 
   :aliases {"all" ["with-profile" "dev:1.4,dev:1.5"]}
-  :dependencies ~(conj shared '[org.clojure/clojure "1.5.0"])
+  :dependencies ~(conj shared '[org.clojure/clojure "1.5.1"])
   :dev-dependencies []
 
   :profiles {:all {:dependencies ~shared}
              :dev {:dependencies [[midje "1.5-RC1"]]}
              :production {}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]}}
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}}
   )
