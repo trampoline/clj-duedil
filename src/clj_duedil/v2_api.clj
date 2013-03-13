@@ -1,5 +1,6 @@
 (ns clj-duedil.v2-api
   (:use
+   clj-duedil.impl
    clj-duedil.util
    clj-duedil.core))
 

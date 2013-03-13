@@ -1,5 +1,6 @@
 (ns clj-duedil.open-api
   (:use
+   clj-duedil.impl
    clj-duedil.core))
 
 (def open-api-base "http://api.duedil.com/open")
