@@ -12,6 +12,8 @@ A Clojure client for the duedil.com API
   They are named as in the [Duedil API documentation](http://developer.duedil.com/io-docs). Keywords
   may be used for parameter names, though values should not use Keywords
 * Keys in the response are decoded as Keywords
+* Functions for API methods which paginate results return a lazy-sequence of result pages. The `:offset` and `:limit` parameters may be used to control page-size and start-point
+* Functions for API methods which support Traversals return the primary result unwrapped, unless a traversal is present, in which case they return the primary result and any traversals together in a map
 
 ## Usage
 
