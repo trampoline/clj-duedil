@@ -3,7 +3,8 @@
         clj-duedil.util)
   (:require [clojure.string :as str]
             [clojure.data.json :as json]
-            [clj-http.client :as http]))
+            [clj-http.client :as http]
+            [clojure.tools.logging :as log]))
 
 
 (fact
@@ -58,8 +59,16 @@
   (next-page-url "blarghle" {:response {:pagination "http://api.duedil.com/blah?last_result=1&offset=50"}}) => nil
   (next-page-url "blarghle" {:response {:pagination "http://api.duedil.com/blah?limit=10&last_result=1&offset=50"}}) => nil)
 
+
 (fact
   (api-call "http://api.duedil.com/foo") => {:response {:data {:foo 100}}}
 
   (provided
+    (log/log* anything :info nil "GET: http://api.duedil.com/foo") => true
     (http/get "http://api.duedil.com/foo") => {:body (json/write-str {:response {:data {:foo 100}}})}))
+
+(fact
+  (api-call nil) => nil
+
+  (provided
+    (log/log* anything :info nil "finished") => true))

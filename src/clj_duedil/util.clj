@@ -5,6 +5,7 @@
   (:require
    [clojure.string :as str]
    [clojure.data.json :as json]
+   [clojure.tools.logging :as log]
    [clj-http.client :as http]
    [clojure.set :as set])
   (:import
@@ -121,6 +122,9 @@
 
 (defn api-call
   [url]
+  (if url
+    (log/info "GET:" url)
+    (log/info "finished"))
   (-?> url
        http/get
        :body
