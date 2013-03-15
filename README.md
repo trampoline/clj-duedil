@@ -17,15 +17,15 @@ A Clojure client for the duedil.com API
 
 ## Usage
 
-Include the following dependency in your project.clj
+Include a dependency in your project.clj, checking [Clojars](https://clojars.org/clj-duedil) for the latest version :
 
-    ["clj-duedil" "0.3.0"]
+    ["clj-duedil" "x.y.z"]
 
 Then run
 
     lein deps
 
-Which will download the specified version of `clj-duedil` from [Clojars](https://clojars.org/clj-duedil). Then :
+to download the given version from [Clojars](https://clojars.org/clj-duedil). Then :
 
     (require '[clj-duedil.core :as dd])
     (require '[clj-duedil.v2-api :as ddv2])
